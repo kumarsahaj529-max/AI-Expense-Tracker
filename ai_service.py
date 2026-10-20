@@ -1,29 +1,35 @@
-
 import streamlit as st
-from openai import OpenAI
+from google import genai
 
 
 def generate_insight(question, expense_summary):
-    client = OpenAI(
-        api_key=st.secrets["OPENAI_API_KEY"]
-    )
+    api_key = st.secrets["GEMINI_API_KEY"]
+    model = st.secrets["GEMINI_MODEL"]
 
-    model = st.secrets["OPENAI_MODEL"]
+    client = genai.Client(api_key=api_key)
 
-    response = client.responses.create(
+    prompt = f"""
+    You are an AI expense analysis assistant.
+
+    Analyze the user's spending using only the supplied
+    expense statistics. Do not invent figures.
+    Give practical, easy-to-understand suggestions.
+    Do not present your response as professional
+    financial advice.
+
+    Expense statistics:
+    {expense_summary}
+
+    User question:
+    {question}
+    """
+
+    response = client.models.generate_content(
         model=model,
-        instructions=(
-            "You are an expense analysis assistant. "
-            "Answer using only the supplied expense "
-            "statistics. Do not invent figures. "
-            "If the data is insufficient, say so. "
-            "Do not present your answer as professional "
-            "financial advice."
-        ),
-        input=(
-            f"Expense statistics:\n{expense_summary}\n\n"
-            f"User question: {question}"
-        )
+        contents=prompt
     )
 
-    return response.output_text
+    if not response.text:
+        raise RuntimeError("Gemini returned an empty response.")
+
+    return response.text
