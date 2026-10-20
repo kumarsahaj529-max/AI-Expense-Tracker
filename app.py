@@ -4,6 +4,7 @@ import pandas as pd
 import plotly.express as px
 from datetime import date
 from database import create_database, add_expense, get_expenses
+from ai_service import generate_insight
 
 st.set_page_config(
     page_title="AI Expense Tracker",
@@ -115,3 +116,46 @@ if expenses:
 
 else:
     st.info("No expenses yet. Add your first expense above.")
+
+
+
+st.subheader("AI Expense Assistant")
+
+expenses = get_expenses()
+
+if expenses:
+    df_ai = pd.DataFrame(
+        expenses,
+        columns=["ID", "Amount", "Category", "Description", "Date"]
+    )
+
+    total = float(df_ai["Amount"].sum())
+
+    category_totals = (
+        df_ai.groupby("Category")["Amount"].sum().to_dict()
+    )
+
+    expense_summary = (
+        f"Total recorded expenses: Rs. {total:.2f}\n"
+        f"Spending by category: {category_totals}"
+    )
+
+    question = st.chat_input("Ask about your spending...")
+
+    if question:
+        st.chat_message("user").write(question)
+
+        with st.chat_message("assistant"):
+            with st.spinner("Analyzing your expenses..."):
+                try:
+                    answer = generate_insight(
+                        question, expense_summary
+                    )
+                    st.write(answer)
+                except Exception:
+                    st.error(
+                        "Unable to get an AI response. "
+                        "Check your API configuration."
+                    )
+else:
+    st.info("Add expenses before asking the AI assistant.")
