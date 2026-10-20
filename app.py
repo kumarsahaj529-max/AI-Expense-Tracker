@@ -3,7 +3,12 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 from datetime import date
-from database import create_database, add_expense, get_expenses
+from database import (
+    create_database,
+    add_expense,
+    get_expenses,
+    delete_all_expenses
+)
 from ai_service import generate_insight
 
 st.set_page_config(
@@ -156,3 +161,30 @@ if expenses:
                   st.error(f"AI error: {type(e).__name__}: {e}")
 else:
     st.info("Add expenses before asking the AI assistant.")
+
+
+# Clear All Expenses
+st.divider()
+st.subheader("Reset Database")
+
+if st.button("🗑️ Clear All Expenses"):
+    st.session_state.confirm_delete = True
+
+if st.session_state.get("confirm_delete", False):
+    st.warning(
+        "Are you sure? This will permanently delete all expenses."
+    )
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+        if st.button("Yes, Delete All", type="primary"):
+            delete_all_expenses()
+            st.session_state.confirm_delete = False
+            st.success("All expenses have been deleted.")
+            st.rerun()
+
+    with col2:
+        if st.button("Cancel"):
+            st.session_state.confirm_delete = False
+            st.rerun()

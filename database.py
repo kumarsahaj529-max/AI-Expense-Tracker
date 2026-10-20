@@ -49,3 +49,15 @@ def get_expenses():
 if __name__ == "__main__":
     create_database()
     print("Database created successfully!")
+
+
+def delete_all_expenses():
+    import sqlite3
+
+    conn = sqlite3.connect("expenses.db")
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM expenses")
+
+    conn.commit()
+    conn.close()
