@@ -152,10 +152,7 @@ if expenses:
                         question, expense_summary
                     )
                     st.write(answer)
-                except Exception:
-                    st.error(
-                        "Unable to get an AI response. "
-                        "Check your API configuration."
-                    )
+                except Exception as e:
+    st.error(f"AI error: {type(e).__name__}: {e}")
 else:
     st.info("Add expenses before asking the AI assistant.")
