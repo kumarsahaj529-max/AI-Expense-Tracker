@@ -153,6 +153,6 @@ if expenses:
                     )
                     st.write(answer)
                 except Exception as e:
-    st.error(f"AI error: {type(e).__name__}: {e}")
+                  st.error(f"AI error: {type(e).__name__}: {e}")
 else:
     st.info("Add expenses before asking the AI assistant.")
